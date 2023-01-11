@@ -35,5 +35,6 @@ def test():
     assert new_head.next_item.next_item.next_item is None
     # result is node0 -> node2 -> node3
 
+
 if __name__ == '__main__':
     test()
