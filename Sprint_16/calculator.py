@@ -1,8 +1,17 @@
 # Задача: B. Калькулятор
-# Успешная попытка 81182761 от 22 янв 2023, 18:11:58
+# Успешная попытка 81363509 от 25 янв 2023, 19:16:20
 
 
-MATH_OPERATIONS = ['+', '-', '*', '/']
+import operator
+
+STACK_EMPTY_MESSAGE = 'Stack is empty'
+UNEXPECTED_OPERAND_TYPE = 'Unexpected operand type {token}'
+CALCULATION_OPERATIONS = {
+    '+': operator.add,
+    '-': operator.sub,
+    '/': operator.floordiv,
+    '*': operator.mul
+}
 
 
 class Stack:
@@ -13,21 +22,27 @@ class Stack:
         self.items.append(item)
 
     def pop(self):
-        if len(self.items) == 0:
-            return 'error'
-        return self.items.pop()
+        try:
+            return self.items.pop()
+        except IndexError:
+            raise IndexError(STACK_EMPTY_MESSAGE)
 
 
-def calculator(expression):
-    stack = Stack()
-    for token in expression:
-        if token not in MATH_OPERATIONS:
-            stack.push(token)
-        else:
-            operand_right = stack.pop()
-            operand_left = stack.pop()
-            token = '//' if token == '/' else token
-            stack.push(eval(f'{operand_left} {token} {operand_right}'))
+def calculator(expressions, stack=None,
+               allowed_operations=CALCULATION_OPERATIONS,
+               operand_type=int):
+    stack = Stack() if stack is None else stack
+    for token in expressions:
+        if token in allowed_operations:
+            right, left = stack.pop(), stack.pop()
+            stack.push(allowed_operations[token](left, right))
+            continue
+        try:
+            stack.push(operand_type(token))
+        except ValueError:
+            raise ValueError(
+                UNEXPECTED_OPERAND_TYPE.format(token=token)
+            )
     return stack.pop()
 
 

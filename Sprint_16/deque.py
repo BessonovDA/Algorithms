@@ -1,43 +1,46 @@
 # Задача:  A. Дек
-# Успешная попытка 81185652 от 22 янв 2023, 19:18:28
+# Успешная попытка 81363824 от 25 янв 2023, 19:21:11
+
+
+DEQUE_OVERFLOW_MESSAGE = 'Deque exceeded max size'
+DEQUE_EMPTY_MESSAGE = 'Deque is empty'
+METHOD_NOT_FOUND = 'Method {method} not found'
 
 
 class Deque:
     def __init__(self, max_size):
-        self.deque = [None] * max_size
+        self.cells = [None] * max_size
         self.max_size = max_size
-        self.head = 0
+        self.head = 1
         self.tail = 0
         self.size = 0
 
     def push_front(self, new_item):
         if self.size == self.max_size:
-            return 'exceeded max size'
+            raise IndexError(DEQUE_OVERFLOW_MESSAGE)
         self.head = (self.head - 1) % self.max_size
-        self.deque[self.head] = new_item
+        self.cells[self.head] = new_item
         self.size += 1
 
     def push_back(self, new_item):
         if self.size == self.max_size:
-            return 'exceeded max size'
-        self.deque[self.tail] = new_item
+            raise IndexError(DEQUE_OVERFLOW_MESSAGE)
         self.tail = (self.tail + 1) % self.max_size
+        self.cells[self.tail] = new_item
         self.size += 1
 
     def pop_front(self):
         if self.is_empty():
-            return 'error'
-        item = self.deque[self.head]
-        self.deque[self.head] = None
+            raise IndexError(DEQUE_EMPTY_MESSAGE)
+        item = self.cells[self.head]
         self.head = (self.head + 1) % self.max_size
         self.size -= 1
         return item
 
     def pop_back(self):
         if self.is_empty():
-            return 'error'
-        item = self.deque[self.tail - 1]
-        self.deque[self.tail - 1] = None
+            raise IndexError(DEQUE_EMPTY_MESSAGE)
+        item = self.cells[self.tail]
         self.tail = (self.tail - 1) % self.max_size
         self.size -= 1
         return item
@@ -48,17 +51,14 @@ class Deque:
 
 if __name__ == '__main__':
     commands_count = int(input())
-    test_deque = Deque(int(input()))
-    while(commands_count):
-        command = input().split()
-        if command[0] == 'push_front':
-            if test_deque.push_front(command[1]) == 'exceeded max size':
-                print('error')
-        elif command[0] == 'push_back':
-            if test_deque.push_back(command[1]) == 'exceeded max size':
-                print('error')
-        elif command[0] == 'pop_back':
-            print(test_deque.pop_back())
-        elif command[0] == 'pop_front':
-            print(test_deque.pop_front())
-        commands_count -= 1
+    deque = Deque(int(input()))
+    for _ in range(commands_count):
+        method, *parameters = input().split()
+        try:
+            result = getattr(deque, method)(*parameters)
+            if result is not None:
+                print(result)
+        except AttributeError:
+            raise ValueError(METHOD_NOT_FOUND.format(method=method))
+        except IndexError:
+            print('error')
